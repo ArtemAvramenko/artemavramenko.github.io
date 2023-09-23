@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artem Avramenko - Convert file to Base64</title>
+    <title>Artem Avramenko - Convert File to Base64 and Back</title>
     <link rel="stylesheet" href="./sakura-earthly.css" />
     <style>
       #from-base64 input {width: 100% }
@@ -11,17 +11,17 @@
   </head>
   <body>
     <div id="to-base64">
+      <h3>File to Base64:</h3>
       <input type="file" />
-      <h3>Base64:</h3>
       <pre></pre>
-      <button>copy</button>
+      <button>copy</button><span id="copied-hint" style="visibility: hidden"> copied!</span>
     </div>
     <hr>
     <div id="from-base64">
+      <h3>Base64 to File:</h3>
       <input type="text" placeholder="Insert Base64 here"/>
-      <h3>File:</h3>
       <div>
-        <a download="ecp.zip" href="data:application/x-zip-compressed;base64,UEsDB">Download</a>
+        <a>Download</a>
       <div>
     </div>
     
@@ -32,6 +32,7 @@
   const fileInput = document.querySelector('#to-base64 input');
   const contentElement = document.querySelector('#to-base64 pre');
   const copyButton = document.querySelector('#to-base64 button');
+  const copiedHint = document.querySelector('#copied-hint');
 
   fileInput.addEventListener('change', e => {
     contentElement.textContent = 'Loading...';
@@ -58,20 +59,22 @@
   copyButton.addEventListener('click', e => {
     const text = contentElement.textContent;
     navigator.clipboard.writeText(text);
+    copiedHint.style.visibility = 'visible';
+    setTimeout(() => copiedHint.style.visibility = 'hidden', 600);
   });
-  
+
   // Base64 to file
-  
+
   const textInput = document.querySelector('#from-base64 input');
   const downloadElement = document.querySelector('#from-base64 a');
-  textInput.addEventListener('change', event => {
-    const base64 = event.target.value;
-    const isZip = base64.startsWith('UEs');
+  setBase64 = base64 => {
+    const isZip = base64.startsWith('UEsD');
     downloadElement.download = 'file' + (isZip ? '.zip' : '');
     const type = isZip ? 'application/x-zip-compressed' : 'application/octet-stream';
-    downloadElement.href = `data:${type};base64,${base64}`;
-  });
-  
+    downloadElement.href = `data:${type};base64,${base64}`;  
+  };
+  setBase64('');
+  textInput.addEventListener('input', event => setBase64(event.target.value));
 
   </script>
 
