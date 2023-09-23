@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Convert file to Base64</title>
+    <style>body{font-family:sans-serif}</style> 
+  </head>
+  <body>
+    <input type="file" />
+    <h3>base64:</h3>
+    <pre></pre>
+    <button>copy</button>	
+  </body>
+
+  <script>
+
+  const fileInput = document.querySelector('input');
+  const contentElement = document.querySelector('pre');
+  const copyButton = document.querySelector('button');
+
+  fileInput.addEventListener('change', e => {
+    contentElement.textContent = 'Loading...';
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        let s = '';
+        for (let d of data) {
+          s += String.fromCharCode(d);
+        }
+        contentElement.textContent = btoa(s);
+      } catch(e) {
+        contentElement.textContent = e.toString();
+      }
+    }
+    try {
+      reader.readAsArrayBuffer(e.target.files[0]);
+    } catch(e) {
+      contentElement.textContent = e.toString();
+    }
+  }, false);
+
+  copyButton.addEventListener('click', e => {
+    const text = contentElement.textContent;
+    navigator.clipboard.writeText(text);
+  });
+
+  </script>
+
+</html>
