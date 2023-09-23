@@ -3,20 +3,38 @@
   <head>
     <meta charset="UTF-8">
     <title>Convert file to Base64</title>
-    <style>body{font-family:sans-serif}</style> 
+    <style>
+      body { font-family:sans-serif }
+      hr { margin: 20px 0 20px 0 }
+      #from-base64 input { width: 90% }
+    </style> 
   </head>
   <body>
-    <input type="file" />
-    <h3>base64:</h3>
-    <pre></pre>
-    <button>copy</button>	
+    <div id="to-base64">
+      <input type="file" />
+      <h3>Base64:</h3>
+      <pre></pre>
+      <button>copy</button>
+    </div>
+    <hr>
+    <div id="from-base64">
+      <input type="text" placeholder="Insert Base64 here"/>
+      <h3>File:</h3>
+      <div>
+        <a download="ecp.zip" href="data:application/x-zip-compressed;base64,UEsDB">Download</a>
+      <div>
+    </div>
+    
+    
   </body>
 
   <script>
+  
+  // File to Base64
 
-  const fileInput = document.querySelector('input');
-  const contentElement = document.querySelector('pre');
-  const copyButton = document.querySelector('button');
+  const fileInput = document.querySelector('#to-base64 input');
+  const contentElement = document.querySelector('#to-base64 pre');
+  const copyButton = document.querySelector('#to-base64 button');
 
   fileInput.addEventListener('change', e => {
     contentElement.textContent = 'Loading...';
@@ -44,6 +62,19 @@
     const text = contentElement.textContent;
     navigator.clipboard.writeText(text);
   });
+  
+  // Base64 to file
+  
+  const textInput = document.querySelector('#from-base64 input');
+  const downloadElement = document.querySelector('#from-base64 a');
+  textInput.addEventListener('change', event => {
+    const base64 = event.target.value;
+    const isZip = base64.startsWith('UEs');
+    downloadElement.download = 'file' + (isZip ? '.zip' : '');
+    const type = isZip ? 'application/x-zip-compressed' : 'application/octet-stream';
+    downloadElement.href = `data:${type};base64,${base64}`;
+  });
+  
 
   </script>
 
