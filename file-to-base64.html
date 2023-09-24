@@ -13,7 +13,7 @@
     <section id="to-base64">
       <h3>File to Base64:</h3>
       <input type="file" />
-      <input type="text" readonly></input>
+      <input type="text" readonly />
       <button>copy</button><span id="copied-hint" style="visibility: hidden"> copied!</span>
     </section>
     <hr>
@@ -74,7 +74,7 @@
   const base64Input = document.querySelector('#from-base64 input');
   const fileOutput = document.querySelector('#from-base64 a');
   setBase64 = base64 => {
-    const isZip = base64.startsWith('UEsD'); // PK\x03
+    const isZip = base64.startsWith('UEsDB'); // PK\x03\x04
     fileOutput.download = 'download' + (isZip ? '.zip' : '');
     const type = isZip ? 'application/x-zip-compressed' : 'application/octet-stream';
     fileOutput.href = `data:${type};base64,${base64}`;  
