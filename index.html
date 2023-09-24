@@ -9,7 +9,12 @@
   </head>
   <body>
     <ul>
-      <li><a href='./file-to-base64.html'>Convert file to Base64</a></li>
+      <li><a href='./file-to-base64'>Convert file to Base64 and back</a></li>
 	</ul>
+    <script>
+      if (location.protocol === 'file:') {
+        document.querySelectorAll('a').forEach(a => a.href += '.html');
+      }
+    </script>
   </body>
 </html>

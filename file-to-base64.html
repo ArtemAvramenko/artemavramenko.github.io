@@ -6,36 +6,36 @@
     <title>Artem Avramenko - Convert File to Base64 and Back</title>
     <link rel="stylesheet" href="./sakura-earthly.css" />
     <style>
-      #from-base64 input {width: 100% }
+      input {width: 100% }
     </style>
   </head>
   <body>
-    <div id="to-base64">
+    <section id="to-base64">
       <h3>File to Base64:</h3>
       <input type="file" />
-      <pre></pre>
+      <input type="text" readonly></input>
       <button>copy</button><span id="copied-hint" style="visibility: hidden"> copied!</span>
-    </div>
+    </section>
     <hr>
-    <div id="from-base64">
+    <section id="from-base64">
       <h3>Base64 to File:</h3>
-      <input type="text" placeholder="Insert Base64 here"/>
+      <input type="text" placeholder="Base64 text"/>
       <div>
         <a>Download</a>
       <div>
-    </div>
+    </section>
     
   <script>
   
   // File to Base64
 
-  const fileInput = document.querySelector('#to-base64 input');
-  const contentElement = document.querySelector('#to-base64 pre');
+  const fileInput = document.querySelector('#to-base64 input[type=file]');
+  const base64output = document.querySelector('#to-base64 input[type=text]');
   const copyButton = document.querySelector('#to-base64 button');
   const copiedHint = document.querySelector('#copied-hint');
 
   fileInput.addEventListener('change', e => {
-    contentElement.textContent = 'Loading...';
+    base64output.value = 'Loading...';
     const reader = new FileReader();
     reader.onload = e => {
       try {
@@ -44,37 +44,43 @@
         for (let d of data) {
           s += String.fromCharCode(d);
         }
-        contentElement.textContent = btoa(s);
+        base64output.value = btoa(s);
+        base64output.select();
       } catch(e) {
-        contentElement.textContent = e.toString();
+        base64output.value = e.toString();
       }
     }
     try {
       reader.readAsArrayBuffer(e.target.files[0]);
     } catch(e) {
-      contentElement.textContent = e.toString();
+      base64output.value = e.toString();
     }
   }, false);
-
-  copyButton.addEventListener('click', e => {
-    const text = contentElement.textContent;
-    navigator.clipboard.writeText(text);
-    copiedHint.style.visibility = 'visible';
-    setTimeout(() => copiedHint.style.visibility = 'hidden', 600);
-  });
+  
+  if (!navigator.clipboard) {
+    copyButton.remove();
+    copiedHint.remove();
+  } else {
+    copyButton.addEventListener('click', e => {
+      const text = base64output.value;
+      navigator.clipboard.writeText(text);
+      copiedHint.style.visibility = 'visible';
+      setTimeout(() => copiedHint.style.visibility = 'hidden', 600);
+    });
+  }
 
   // Base64 to file
 
-  const textInput = document.querySelector('#from-base64 input');
-  const downloadElement = document.querySelector('#from-base64 a');
+  const base64Input = document.querySelector('#from-base64 input');
+  const fileOutput = document.querySelector('#from-base64 a');
   setBase64 = base64 => {
-    const isZip = base64.startsWith('UEsD');
-    downloadElement.download = 'file' + (isZip ? '.zip' : '');
+    const isZip = base64.startsWith('UEsD'); // PK\x03
+    fileOutput.download = 'download' + (isZip ? '.zip' : '');
     const type = isZip ? 'application/x-zip-compressed' : 'application/octet-stream';
-    downloadElement.href = `data:${type};base64,${base64}`;  
+    fileOutput.href = `data:${type};base64,${base64}`;  
   };
   setBase64('');
-  textInput.addEventListener('input', event => setBase64(event.target.value));
+  base64Input.addEventListener('input', event => setBase64(event.target.value));
 
   </script>
 
