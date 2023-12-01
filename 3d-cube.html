@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="HandheldFriendly" content="true" />
+    <title>Artem Avramenko - 3D cube</title>
+    <link rel="stylesheet" href="./sakura-earthly.css" />
+    <style>
+      input {width: 200px; display:block; }
+      img { margin:0; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.159.0/three.min.js"></script>
+    <script src="./OrbitControls.js"></script>
+  </head>
+
+  <body>
+    <table>
+      <tr>
+        <td><img height="32" width="32"><input type="file" /></td>
+        <td><img height="32" width="32"><input type="file" /></td>
+        <td><img height="32" width="32"><input type="file" /></td>
+      </tr>
+      <tr>
+        <td><img height="32" width="32"><input type="file" /></td>
+        <td><img height="32" width="32"><input type="file" /></td>
+        <td><img height="32" width="32"><input type="file" /></td>
+      </tr>
+    </table>    
+  <script>
+  
+const textureLoader = new THREE.TextureLoader();
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+
+scene.add( camera );
+
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setSize(600, 600);
+document.body.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+const geometry = new THREE.BoxGeometry(2, 2, 2);
+const cube = new THREE.Mesh(geometry);
+scene.add( cube );
+
+camera.position.z = 5;
+
+//////////////////////////
+
+const images = [
+    'QSURBVAjXY2BgMGAQgEIGAAOeAHE1ocYuAAAAAElFTkSuQmCC',
+    'TSURBVAjXY2BgsGDgAGIFIGYAAAWOANHOms8jAAAAAElFTkSuQmCC',
+    'QSURBVAjXY2BgsGDggGIGAAUWALlE+VbRAAAAAElFTkSuQmCC',
+    'TSURBVAjXY2Bg0ABCCwYOIGQAAAT2AJmsx4tGAAAAAElFTkSuQmCC',
+    'TSURBVAjXY2BgsGBQAGIOIGYAAAXuANFw9sM6AAAAAElFTkSuQmCC',
+    'TSURBVAjXY2BgsGBQAGINIGYAAAaOAPEod7v5AAAAAElFTkSuQmCC'
+].map(data => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAGUExURe/ksMFIS8uQnn8AAAA' + data)
+
+function updateImages() {
+    document.querySelectorAll('table img')
+        .forEach((img, i) => img.src = images[i]);
+    cube.material = [
+        images[1], images[3], images[4], images[5], images[0], images[2]
+    ].map(imageUrl => new THREE.MeshBasicMaterial( { 
+        map: textureLoader.load(imageUrl)
+    }))
+}
+
+updateImages();
+
+function animate() {
+    requestAnimationFrame( animate );
+    renderer.render( scene, camera );
+}
+animate();
+
+document.querySelectorAll('table input').forEach(
+  (fileInput, i) => fileInput.addEventListener('change', e => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        let s = '';
+        for (let d of data) {
+          s += String.fromCharCode(d);
+        }
+        const imgUrl = 'data:image/jpeg;base64,' + btoa(s);
+        images[i] = imgUrl;
+        document.querySelectorAll('table img')[i].src = imgUrl;
+        updateImages();
+      } catch(e) {
+       
+      }
+    }
+    try {
+      reader.readAsArrayBuffer(e.target.files[0]);
+    } catch(e) {
+      
+    }
+  }, false)
+);
+
+
+  </script>
+
+</body>
+
+</html>
