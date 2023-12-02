@@ -11,7 +11,6 @@
       img { margin:0; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.159.0/three.min.js"></script>
-    <script src="./OrbitControls.js"></script>
   </head>
 
   <body>
@@ -37,20 +36,22 @@
       
     const textureLoader = new THREE.TextureLoader();
     const scene = new THREE.Scene();
+    
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-
-    scene.add(camera);
+    scene.add(camera);    
+    
+    const light = new THREE.HemisphereLight(0xffffff, 0x111111, 3);
+    light.position.set(1,2,5);
+    scene.add(light);
 
     const renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setSize(600, 600);
     document.body.appendChild(renderer.domElement);
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-
     const cube = new THREE.Mesh();
     scene.add(cube);
 
-    camera.position.z = 5;
+    camera.position.z = 8;
 
     //////////////////////////
 
@@ -72,7 +73,7 @@
         ].map(imageIndex => {
             const texture = textureLoader.load(images[imageIndex]);
             texture.colorSpace = THREE.SRGBColorSpace;
-            return new THREE.MeshBasicMaterial({ 
+            return new THREE.MeshPhongMaterial({ 
                 map: texture,
             });
         })
@@ -81,7 +82,7 @@
     function updateSizes() {
        let sizes = [...document.querySelectorAll('table input[type="number"]')]
            .map(input => parseInt(input.value) || 0);
-       const divisor = Math.max(...sizes) / 3;
+       const divisor = Math.max(...sizes) / 6;
        sizes = sizes.map(s => s / divisor);
        cube.geometry = new THREE.BoxGeometry(sizes[0], sizes[1], sizes[2]);
     }
@@ -127,7 +128,72 @@
             }
         }, false)
     );
+    
+    //////////////////////////
 
+    let mouseDown = false;
+    let mouseX = 0;
+    let mouseY = 0;
+
+    function onPointerMove(e) {
+        
+        if (!e.buttons && !e.touches) {
+            mouseDown = false;
+        }
+        if (!mouseDown) {
+            return;
+        }
+        
+        e.preventDefault();
+        
+        const evt = e.touches ? e.touches[0] : e;
+
+        let deltaX = evt.clientX - mouseX;
+        let deltaY = evt.clientY - mouseY;
+        
+        let currentDeg = cube.rotation.x * 180 / Math.PI;
+        currentDeg = currentDeg - 360 * Math.floor(currentDeg / 360);
+        if (currentDeg > 45 && currentDeg < 225) {
+            deltaX *= -1;
+        }
+        
+        mouseX = evt.clientX;
+        mouseY = evt.clientY;
+        cube.rotation.y += deltaX / 100;
+        cube.rotation.x += deltaY / 100;
+    }
+
+    function onPointerDown(e) {
+        const evt = e.touches ? e.touches[0] : e;
+        e.preventDefault();
+        mouseDown = true;
+        mouseX = evt.clientX;
+        mouseY = evt.clientY;
+    }
+
+    function onPointerUp(e) {
+        e.preventDefault();
+        mouseDown = false;
+    }
+
+    function onMouseWheel(e) {
+        e.preventDefault();
+        let z = cube.position.z;
+        const minZ = -20;
+        const maxZ = 3;
+        z += (maxZ - z + 1) * (-e.deltaY / 2000);
+        cube.position.z = Math.max(Math.min(z, maxZ), minZ);
+    }
+    
+    [
+        [['mousedown', 'touchstart'], onPointerDown],
+        [['mousemove', 'touchmove'], onPointerMove],
+        [['mouseup', 'touchend', 'touchcancel'], onPointerUp],
+        [['wheel'], onMouseWheel]
+    ].forEach(([events, handler]) =>
+        events.forEach(event => renderer.domElement.addEventListener(event, handler, false))
+    );
+   
     </script>
 
   </body>
