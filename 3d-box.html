@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="HandheldFriendly" content="true" />
-    <title>Artem Avramenko - 3D cube</title>
+    <title>Artem Avramenko - 3D box</title>
     <link rel="stylesheet" href="./sakura-earthly.css" />
     <style>
       input {width: 200px; display:block; }
@@ -37,7 +37,7 @@
     const textureLoader = new THREE.TextureLoader();
     const scene = new THREE.Scene();
     
-    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
     scene.add(camera);    
     
     const light = new THREE.HemisphereLight(0xffffff, 0x111111, 3);
@@ -48,8 +48,8 @@
     renderer.setSize(600, 600);
     document.body.appendChild(renderer.domElement);
 
-    const cube = new THREE.Mesh();
-    scene.add(cube);
+    const box = new THREE.Mesh();
+    scene.add(box);
 
     camera.position.z = 8;
 
@@ -68,7 +68,7 @@
     function updateImages() {
         document.querySelectorAll('table img')
             .forEach((img, i) => img.src = images[i]);
-        cube.material = [ // sort the faces in a more natural order
+        box.material = [ // sort the faces in a more natural order
             1, 3, 4, 5, 0, 2
         ].map(imageIndex => {
             const texture = textureLoader.load(images[imageIndex]);
@@ -84,7 +84,7 @@
            .map(input => parseInt(input.value) || 0);
        const divisor = Math.max(...sizes) / 6;
        sizes = sizes.map(s => s / divisor);
-       cube.geometry = new THREE.BoxGeometry(sizes[0], sizes[1], sizes[2]);
+       box.geometry = new THREE.BoxGeometry(sizes[0], sizes[1], sizes[2]);
     }
 
     updateSizes();
@@ -151,16 +151,16 @@
         let deltaX = evt.clientX - mouseX;
         let deltaY = evt.clientY - mouseY;
         
-        let currentDeg = cube.rotation.x * 180 / Math.PI;
+        let currentDeg = box.rotation.x * 180 / Math.PI;
         currentDeg = currentDeg - 360 * Math.floor(currentDeg / 360);
-        if (currentDeg > 45 && currentDeg < 225) {
+        if (currentDeg > 45 && currentDeg < 235) {
             deltaX *= -1;
         }
         
         mouseX = evt.clientX;
         mouseY = evt.clientY;
-        cube.rotation.y += deltaX / 100;
-        cube.rotation.x += deltaY / 100;
+        box.rotation.y += deltaX / 100;
+        box.rotation.x += deltaY / 100;
     }
 
     function onPointerDown(e) {
@@ -178,11 +178,11 @@
 
     function onMouseWheel(e) {
         e.preventDefault();
-        let z = cube.position.z;
+        let z = box.position.z;
         const minZ = -20;
         const maxZ = 3;
         z += (maxZ - z + 1) * (-e.deltaY / 2000);
-        cube.position.z = Math.max(Math.min(z, maxZ), minZ);
+        box.position.z = Math.max(Math.min(z, maxZ), minZ);
     }
     
     [
