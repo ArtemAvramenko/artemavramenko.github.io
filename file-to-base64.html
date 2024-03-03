@@ -74,11 +74,21 @@
 
   const base64Input = document.querySelector('#from-base64 input');
   const fileOutput = document.querySelector('#from-base64 a');
+  const signatures = [
+      ['zip', 'application/x-zip-compressed', 'UEsDB'], // PK\x03\x04
+      ['7z', 'application/x-7z-compressed', 'N3q8rycc'] // 7z\xBC\xAF\x27\x1C
+  ]
   setBase64 = base64 => {
-    const isZip = base64.startsWith('UEsDB'); // PK\x03\x04
-    fileOutput.download = 'download' + (isZip ? '.zip' : '');
-    const type = isZip ? 'application/x-zip-compressed' : 'application/octet-stream';
-    fileOutput.href = `data:${type};base64,${base64}`;  
+    fileOutput.download = 'download';
+    let mimeType = 'application/octet-stream';
+    for (let x of signatures) {
+      if (base64.startsWith(x[2])) {
+        fileOutput.download += '.' + x[0];
+        mimeType = x[1];
+        break;
+      }
+    }
+    fileOutput.href = `data:${mimeType};base64,${base64}`;  
   };
   setBase64('');
   base64Input.addEventListener('input', event => setBase64(event.target.value));
