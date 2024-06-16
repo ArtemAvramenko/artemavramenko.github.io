@@ -38,6 +38,10 @@
   fileInput.addEventListener('change', e => {
     base64output.value = 'Loading...';
     const reader = new FileReader();
+    reader.onerror = e => {
+      const err = reader.error;
+      base64output.value = err && err.toString();
+    };
     reader.onload = e => {
       try {
         const data = new Uint8Array(e.target.result);
@@ -50,7 +54,7 @@
       } catch(e) {
         base64output.value = e.toString();
       }
-    }
+    };
     try {
       reader.readAsArrayBuffer(e.target.files[0]);
     } catch(e) {
