@@ -7,14 +7,21 @@
     <title>Artem Avramenko - Convert File to Base64 and Back</title>
     <link rel="stylesheet" href="./sakura-earthly.css" />
     <style>
-      input {width: 100% }
+      input {
+        width: 100%;
+      }
+      textarea {
+        font-family: monospace;
+        height: 70px;
+        resize: none;
+      }
     </style>
   </head>
   <body>
     <section id="to-base64">
       <h3>File to Base64:</h3>
-      <input type="file" accept="application/octet-stream" />
-      <input type="text" readonly />
+      <input type="file" />
+      <textarea readonly></textarea>
       <button>copy</button><span id="copied-hint" style="visibility: hidden"> copied!</span>
     </section>
     <hr>
@@ -29,9 +36,11 @@
   <script>
   
   // File to Base64
+  
+  const maxMegabytes = 10;
 
   const fileInput = document.querySelector('#to-base64 input[type=file]');
-  const base64output = document.querySelector('#to-base64 input[type=text]');
+  const base64output = document.querySelector('#to-base64 textarea');
   const copyButton = document.querySelector('#to-base64 button');
   const copiedHint = document.querySelector('#copied-hint');
 
@@ -50,7 +59,9 @@
           s += String.fromCharCode(d);
         }
         base64output.value = btoa(s);
-        base64output.select();
+        if (!navigator.clipboard) {
+          base64output.select();
+        }
       } catch(e) {
         base64output.value = e.toString();
       }
