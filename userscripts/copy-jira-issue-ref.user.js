@@ -7,6 +7,11 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_setClipboard
 // @icon         https://jira.atlassian.com/favicon.ico
+// @author       Artem Avramenko
+// @homepageURL  https://artemavramenko.github.io/userscripts/
+// @updateURL    https://artemavramenko.github.io/userscripts/copy-jira-issue-ref.user.js
+// @downloadURL  https://artemavramenko.github.io/userscripts/copy-jira-issue-ref.user.js
+// @supportURL   https://github.com/ArtemAvramenko/artemavramenko.github.io/issues
 // ==/UserScript==
 
 (function () {
