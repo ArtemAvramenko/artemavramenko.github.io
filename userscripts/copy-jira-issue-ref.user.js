@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Copy Jira Issue Ref
-// @version      1.0
+// @version      1.1
 // @description  Copy Jira Issue Ref
 // @match        https://*.atlassian.net/*
 // @match        https://*.atlassian.com/*
@@ -17,9 +17,9 @@
 (function () {
     'use strict';
 
-    function escapeHtmlEntities(text) {
-         return text.replace(/[&<>"']/g, char => `&#${char.charCodeAt(0)};`);
-    }
+    const escapeHtmlEntities = s => s.replace(/[&<>"']/g, char => `&#${char.charCodeAt(0)};`);
+
+    const escapeMarkdown = s => s.replace(/[\^\\\[`\*_\{\}\[\]\(\)\#\+\.!<>\-]/g, '\\$&');
 
     function extractIssueKey() {
         // Examples:
@@ -42,27 +42,40 @@
         ).trim();
     }
 
-    function copyForGit() {
-        const issueKey = extractIssueKey();
+    function extractIssue() {
+        const key = extractIssueKey();
         const title = extractIssueTitle();
-        let result = issueKey || 'Unknown';
-        if (title) {
-            result += ' - ' + title
+        const url = `${window.location.origin}/browse/${key}`;
+        return { key, title, url };
+    }
+
+    function copyForGit() {
+        const issue = extractIssue();
+        let result = issue.key || 'Unknown';
+        if (issue.title) {
+            result += ' - ' + issue.title;
         }
-        if (issueKey) {
-            result += `\n\n${window.location.origin}/browse/${issueKey}`;
+        if (issue.key) {
+            result += `\n\n${issue.url}`;
         }
         GM_setClipboard(result);
     }
 
     function copyForTeams() {
-        const issueKey = extractIssueKey();
-        const title = extractIssueTitle();
-        let result = `<a href="${window.location.origin}/browse/${issueKey}">${issueKey}</a>`;
-        result += ` <i>${escapeHtmlEntities(title)}</i>`;
+        const issue = extractIssue();
+        let result = `<a href="${issue.url}">${issue.key}</a>`;
+        result += ` <i>${escapeHtmlEntities(issue.title)}</i>`;
         GM_setClipboard(result, 'html');
     }
 
-    GM_registerMenuCommand('Copy for Git 🔶', copyForGit);
-    GM_registerMenuCommand('Copy for Teams 👥', copyForTeams);
+    function copyForObsidian() {
+        const issue = extractIssue();
+        let result = `[${issue.key}](${issue.url})`
+        result += ` ${escapeMarkdown(issue.title)}`;
+        GM_setClipboard(result);
+    }
+
+    GM_registerMenuCommand('Copy for Git 🔶 (text)', copyForGit);
+    GM_registerMenuCommand('Copy for Teams 👥 (html)', copyForTeams);
+    GM_registerMenuCommand('Copy for Obsidian 🌑 (md)', copyForObsidian);
 })();
